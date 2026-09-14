@@ -1,0 +1,20 @@
+{
+  "default": {
+    "zone": "unknown"
+  },
+  "tank_farm_cam3": {
+    "zone": "tank farm",
+    "roi_masks": [
+      [[1510, 80], [1620, 80], [1620, 260], [1510, 260]]
+    ],
+    "conf_threshold": 0.35,
+    "class_thresholds": {"fire": 0.45},
+    "n_of": 5,
+    "m_window": 10,
+    "require_growth": true,
+    "growth_ratio": 1.15,
+    "cooldown_s": 60,
+    "fuel": "crude oil",
+    "note": "flare stack tip masked, top right"
+  }
+}

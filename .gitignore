@@ -1,0 +1,9 @@
+/data/raw/
+/data/roboflow/
+/out/
+*.pt
+*.onnx
+*.engine
+__pycache__/
+.venv/
+.pytest_cache/

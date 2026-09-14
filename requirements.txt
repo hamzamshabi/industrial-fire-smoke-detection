@@ -1,0 +1,16 @@
+# Install PyTorch for your CUDA version first: https://pytorch.org/get-started/locally/
+# The published traces reproduce byte-for-byte with ultralytics 8.4.37 + opencv 4.9.
+# Later ultralytics releases shift confidences slightly (see README, Reproducing).
+ultralytics==8.4.37
+opencv-python
+numpy
+pillow
+matplotlib
+
+# data/ scripts
+pyarrow                 # export_dfire.py
+huggingface_hub         # fetch_dfire.py, fetch_fasdd.py
+rapidocr_onnxruntime    # ocr_timestamps.py (optional)
+imageio-ffmpeg          # review_csb.py, only if ffmpeg is not on PATH
+
+pytest
