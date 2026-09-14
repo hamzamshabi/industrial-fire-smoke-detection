@@ -51,7 +51,9 @@ the mirror produced:
 That table also proves the class order is **`0 = smoke, 1 = fire`**: a reversed mapping
 would swap the first two rows. FASDD, and the trained model, use the opposite order
 (`0 = fire, 1 = smoke`). Nothing errors if you mix them up; every box silently changes
-class. `pack_*.py` remap to D-Fire order and write the order into each `data.yaml`.
+class. `pack_refinery_roboflow.py` and `pack_video_roboflow.py` remap model output to
+D-Fire order and write it into `data.yaml`; `pack_dfire_negatives.py` has no boxes, so
+its order is moot.
 
 An empty label file is a deliberate background image, not a missing label. Those 9,838
 images are 45.7% of D-Fire and are what teaches the model not to fire on sunsets and

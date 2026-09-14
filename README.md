@@ -83,7 +83,7 @@ The split looks careful: each filename prefix is cut as one contiguous block. It
 44.66% of the objects are "tiny" after downscaling, so I expected 1024 px to beat 640. It gave +0.3 mAP (noise), was slightly worse in every confusion-matrix cell, and cost about 5× the GPU time. Everything stayed at 640, and the choice is now based on a measurement rather than an assumption.
 
 **4. Two datasets, same two classes, opposite indices.**
-D-Fire is `0 = smoke, 1 = fire`. FASDD and the trained model are `0 = fire, 1 = smoke`. Mixing them raises no error: the files parse, both classes exist, and every box has swapped class. I proved D-Fire's order from its published category counts ([`data/README.md`](data/README.md)), and every packing script remaps to one order and writes it into `data.yaml`.
+D-Fire is `0 = smoke, 1 = fire`. FASDD and the trained model are `0 = fire, 1 = smoke`. Mixing them raises no error: the files parse, both classes exist, and every box has swapped class. I proved D-Fire's order from its published category counts ([`data/README.md`](data/README.md)). The two pre-annotation packers remap model output to D-Fire order and write that order into `data.yaml`. The background-only package has no boxes, so its order doesn't matter.
 
 ## Repository layout
 
