@@ -135,28 +135,56 @@ print("wrote alarm_trace.png")
 
 
 # ---------------------------------------------------------------- pipeline
-fig, ax = plt.subplots(figsize=(6.4, 6.6), dpi=150)
-ax.set(xlim=(0, 10), ylim=(0, 15.6))
-ax.axis("off")
 boxes = [
-    ("Fixed plant CCTV", "one frame every 0.5-1 s", "#eceef2", NAVY),
-    ("YOLO26m detector", "fire and smoke boxes at 640 px", "#e6ebf7", BLUE),
-    ("ROI mask", "drop boxes whose bottom edge\nsits on the flare stack", "#e4f2ef", TEAL),
-    ("Per-class threshold", "fire 0.45, smoke 0.35", "#e4f2ef", TEAL),
-    ("N-of-M persistence", "5 hits in the last 10 frames", "#e4f2ef", TEAL),
-    ("Growth check", "recent box area 15% above\nthe start of the window", "#e4f2ef", TEAL),
-    ("Alarm, then 60 s cooldown", "one notification per incident", "#faeae7", RED),
+    ("Fixed plant\nCCTV", "one frame every\n0.5-1 s", "#eceef2", NAVY),
+    ("YOLO26m\ndetector", "fire and smoke\nboxes at 640 px", "#e6ebf7", BLUE),
+    ("ROI mask", "drops boxes whose\nbottom edge sits\non the flare stack", "#e4f2ef", TEAL),
+    ("Per-class\nthreshold", "fire 0.45\nsmoke 0.35", "#e4f2ef", TEAL),
+    ("N-of-M\npersistence", "5 hits in the\nlast 10 frames", "#e4f2ef", TEAL),
+    ("Growth\ncheck", "recent box area\n15% above the\nstart of the window", "#e4f2ef", TEAL),
+    ("Alarm +\ncooldown", "60 s per class:\none notification\nper incident", "#faeae7", RED),
 ]
-y, h, gap = 14.2, 1.55, 0.52
-for title, sub, fill, edge in boxes:
-    ax.add_patch(FancyBboxPatch((0.6, y - h), 8.8, h, boxstyle="round,pad=0.02,rounding_size=0.18",
-                                facecolor=fill, edgecolor=edge, linewidth=1.2))
-    ax.text(5.0, y - 0.52, title, ha="center", va="center", fontsize=11, fontweight="bold", color=edge)
-    ax.text(5.0, y - 1.12, sub, ha="center", va="center", fontsize=9, color="#4a5266")
-    if y - h - gap > 0.4:
-        ax.add_patch(FancyArrowPatch((5.0, y - h), (5.0, y - h - gap + 0.06), arrowstyle="-|>",
-                                     mutation_scale=12, color="#7a8296", linewidth=1.1))
-    y -= h + gap
+W, H = 16.0, 2.25
+fig, ax = plt.subplots(figsize=(W, H), dpi=150)
+ax.set(xlim=(0, W), ylim=(0, H))
+ax.axis("off")
+margin, gap = 0.1, 0.36
+bw = (W - 2 * margin - gap * (len(boxes) - 1)) / len(boxes)
+for i, (title, sub, fill, edge) in enumerate(boxes):
+    x = margin + i * (bw + gap)
+    ax.add_patch(FancyBboxPatch((x, 0.12), bw, H - 0.24, boxstyle="round,pad=0.02,rounding_size=0.14",
+                                facecolor=fill, edgecolor=edge, linewidth=1.3))
+    ax.text(x + bw / 2, H - 0.56, title, ha="center", va="center", fontsize=12.5, fontweight="bold",
+            color=edge, linespacing=1.15)
+    ax.text(x + bw / 2, 0.72, sub, ha="center", va="center", fontsize=10, color="#4a5266", linespacing=1.3)
+    if i < len(boxes) - 1:
+        ax.add_patch(FancyArrowPatch((x + bw + 0.04, H / 2), (x + bw + gap - 0.04, H / 2), arrowstyle="-|>",
+                                     mutation_scale=14, color="#7a8296", linewidth=1.3))
 fig.savefig(DOCS / "pipeline.png", bbox_inches="tight", facecolor="white")
 plt.close(fig)
 print("wrote pipeline.png")
+
+
+# ---------------------------------------------------------------- D-Fire leakage pairs, two columns
+pairs = Image.open(DOCS / "audit_pairs_exact.png").convert("RGB")
+gray = pairs.convert("L")
+pw, ph = pairs.size
+blank = [sum(gray.getpixel((x, y)) > 245 for x in range(0, pw, 2)) > 0.97 * (pw // 2) for y in range(ph)]
+blocks, start = [], None
+for y, is_blank in enumerate(blank + [True]):
+    if not is_blank and start is None:
+        start = y
+    elif is_blank and start is not None:
+        blocks.append([start, y])
+        start = None
+# Each pair starts at its short "TEST ... TRAIN ..." label line.
+labels = [b[0] for b in blocks if b[1] - b[0] < 20]
+merged = [[y0, (labels[i + 1] if i + 1 < len(labels) else ph) - 6] for i, y0 in enumerate(labels)]
+bh = max(b[1] - b[0] for b in merged)
+gutter, rows_n = 36, (len(merged) + 1) // 2
+grid = Image.new("RGB", (2 * pw + gutter, rows_n * bh + (rows_n - 1) * 14), "white")
+for i, (y0, y1) in enumerate(merged):
+    col, row = divmod(i, rows_n)
+    grid.paste(pairs.crop((0, y0, pw, y1)), (col * (pw + gutter), row * (bh + 14)))
+grid.save(DOCS / "audit_pairs_grid.png")
+print("wrote audit_pairs_grid.png")
