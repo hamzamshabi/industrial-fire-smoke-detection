@@ -29,7 +29,6 @@ from PIL import Image
 
 from audit_dfire_test_leakage import (
     HAMMING_THRESHOLD,
-    POPCOUNT,
     ROOT,
     OUT,
     as_bytes,
@@ -91,7 +90,7 @@ def main() -> None:
 
     print(f"\n{'pool':<40}{'n':>7}{'<= 10':>9}{'= 0':>9}")
     for name, d, n in (
-        (f"D-Fire train (all)", dists, len(train_arr)),
+        ("D-Fire train (all)", dists, len(train_arr)),
         (f"D-Fire train (random {slice_n:,} subset)", d_sub, slice_n),
         (f"FASDD control (unrelated, {slice_n:,})", d_ctrl, slice_n),
     ):
